@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "https://etherealtech.vercel.app"
+      "destination": "https://etherealtech.netlify.app"
     },
     {
       "source": "/:match*",
-      "destination": "https://etherealtech.vercel.app/:match*"
+      "destination": "https://etherealtech.netlify.app/:match*"
     }
   ]
 }
