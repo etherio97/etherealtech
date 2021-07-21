@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
     'authorization': 'token ' + GITHUB_TOKEN,
   };
   const { status, data } = await axios.post(REQUEST_URL,  {
-    head: 'refs/heads/main',
+    ref: 'refs/heads/main',
     inputs: {
       cron_schedule: '0 0 19 * * *'
     }
