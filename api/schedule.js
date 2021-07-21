@@ -19,7 +19,7 @@ class DB {
 }
 
 class Actions {
-    static BASE_URL = 'https://github.com/repos/etherealtech/aungsan-live-schedule/actions';
+    static BASE_URL = 'https://github.com/etherealtech/aungsan-live-schedule/actions';
     static REST_API = 'https://api.github.com/repos/etherealtech/aungsan-live-schedule/actions';
     
     static dispatch(id, inputs) {
@@ -42,26 +42,31 @@ class Actions {
 }
 
 module.exports = async (req, res) => {
-  const { token } = req.query;
+  let cron_schedule;
+  let { token, hr, min } = req.query;
   if (!token) return res.status(401).json({ status: 401, error: 'Unauthorized' });
   if (token !== APP_SECRET) return res.status(403).json({ status: 403, error: 'Forbidden' });
   try {
     let [ run ] = await Actions.runs();
     let { id, status, conclusion, html_url, created_at, updated_at } = run;
 
+    if (hr) {
+      cron_schedule = `0 * ${min || 0} ${hr} * * *`;
+    } else {
+      cron_schedule = '0 0 19 * * *'; // [default] at every 7PM
+    }
+    
     switch(status) {
       case 'queued':
       case 'in_progress':
-        return res.staus(400).json({ status: 400, error: 'Bad Request', message: html_url });
+        return res.status(400).json({ status: 400, error: 'Bad Request', message: html_url });
       case 'completed':
         break;
       default:
         console.log('[Unexcepted Run Status] %s', status);
     }
     
-    await Actions.dispatch(GITHUB_WORKFLOW_ID, {
-      cron_schedule: '0 0 19 * * *'
-    });
+    await Actions.dispatch(GITHUB_WORKFLOW_ID, { cron_schedule });
     
     res.json({ status: 200, message: Actions.BASE_URL });
   } catch(e) {
