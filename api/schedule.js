@@ -45,13 +45,18 @@ class Actions {
 }
 
 module.exports = async (req, res) => {
-  let { token, hr, min } = req.query;
+  let { token, hr, min, test } = req.query;
+  let cron_schedule = hr ? `0 ${min || 0} ${hr} * * *` : '0 0 19 * * *';
   if (!token) return res.status(401).json({ status: 401, error: 'Unauthorized' });
   if (token !== APP_SECRET) return res.status(403).json({ status: 403, error: 'Forbidden' });
   try {
+    if (test) {
+        await Actions.dispatch(GITHUB_WORKFLOW_ID, { cron_schedule });
+        res.json({ status: 200, message: Actions.BASE_URL });
+        return;
+    }
     let [ run ] = await Actions.runs();
     let { id, status, conclusion, html_url, created_at, updated_at } = run;
-    let cron_schedule = hr ? `0 ${min || 0} ${hr} * * *` : '0 0 19 * * *';
     switch(status) {
       case 'queued':
       case 'in_progress':
