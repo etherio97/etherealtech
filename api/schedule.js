@@ -28,16 +28,19 @@ class Actions {
         inputs
       }, { 
         headers:{
-          'content-type': 'application/json',
-          'authorization': 'token ' + GITHUB_TOKEN
+          authorization: 'token ' + GITHUB_TOKEN,
+          'content-type': 'application/json'
         }
       });
     }
     
-    static async runs(limit = null) {
-        const { data } = await axios.get(`${this.REST_API}/runs?limit=${limit || 10}`);
-        const actions = data['workflow_runs'] || [];
-        return actions.filter(({ event }) => event === 'workflow_dispatch');
+    static async runs() {
+        let { data: { workflow_runs } } = await axios.get(`${this.REST_API}/runs`, {
+          headers: {
+            authorization: 'token ' + GITHUB_TOKEN 
+          }
+        });
+        return (workflow_runs || []).filter(({ event }) => event === 'workflow_dispatch');
     }
 }
 
