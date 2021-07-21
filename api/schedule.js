@@ -1,8 +1,20 @@
-const { APP_SECRET, GITHUB_TOKEN } = process.env;
+const { APP_SECRET, DATABASE_TOKEN, GITHUB_TOKEN } = process.env;
 const { default: axios } = require('axios');
 
 const REQUEST_URL = 'https://api.github.com/repos/etherealtech/aungsan-live-schedule/actions/workflows/11461024/dispatches';
+class DB {
+    static BASE_URL = 'https://us1-merry-cat-32748.upstash.io';
 
+    static async set(key, value) {
+        const { data } = await axios.post(`${this.BASE_URL}/set/${key}/${value}?_token=${DATABASE_TOKEN}`);
+        return data;
+    }
+
+    static async get(key) {
+        const { data } = await axios.post(`${this.BASE_URL}/get/${key}?_token=${DATABASE_TOKEN}`);
+        return data['result'] || null;
+    }
+}
 module.exports = async (req, res) => {
   const { token } = req.query;
   
@@ -25,18 +37,15 @@ module.exports = async (req, res) => {
   
   const headers = {
     'content-type': 'application/json',
-    'authorization': 'token ' + GITHUB_TOKEN
+    'authorization': 'token ' + GITHUB_TOKEN,
   };
   
-  axios({
-    url: REQUEST_URL,
-    method: 'POST',
-    data,
+  const { status, data } = await axios.post(REQUEST_URL, data, {
     headers,
   });
   
   res.json({
-    status: 200,
-    message: 'OK',
+    status,
+    data,
   });
 };
