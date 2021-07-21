@@ -1,23 +1,42 @@
 const { APP_SECRET } = process.env;
+const { default: axios } = require('axios');
 
-module.exports = (req, res) => {
+const REQUEST_URL = '';
+
+module.exports = async (req, res) => {
   const { token } = req.query;
   
   if (!token) return res.status(401).json({
-    code: 401,
-    status: 'error',
-    message: 'Unauthorized',
+    status: 401,
+    error: 'Unauthorized',
   });
   
   if (token !== APP_SECRET) return res.status(403).json({
-    code: 403,
-    status: 'error',
-    message: 'Forbidden',
+    status: 403,
+    error: 'Forbidden',
+  });
+  
+  const data = {
+    head: 'refs/heads/main',
+    inputs: {
+      cron_schedule: '0 0 19 * * *',
+    },
+  };
+  
+  const headers = {
+    'content-type': 'application/json',
+    'authorization': 'token ' + GITHUB_TOKEN
+  };
+  
+  axios({
+    url: REQUEST_URL,
+    method: 'POST',
+    data,
+    headers,
   });
   
   res.json({
-    code: 200,
-    status: 'success',
+    status: 200,
     message: 'OK',
   });
 };
