@@ -15,37 +15,21 @@ class DB {
         return data['result'] || null;
     }
 }
+
 module.exports = async (req, res) => {
   const { token } = req.query;
-  
-  if (!token) return res.status(401).json({
-    status: 401,
-    error: 'Unauthorized',
-  });
-  
-  if (token !== APP_SECRET) return res.status(403).json({
-    status: 403,
-    error: 'Forbidden',
-  });
-  
-  const data = {
-    head: 'refs/heads/main',
-    inputs: {
-      cron_schedule: '0 0 19 * * *',
-    },
-  };
-  
+  if (!token) return res.status(401).json({ status: 401, error: 'Unauthorized' });
+  if (token !== APP_SECRET) return res.status(403).json({ status: 403, error: 'Forbidden' });
   const headers = {
     'content-type': 'application/json',
     'authorization': 'token ' + GITHUB_TOKEN,
   };
+  const { status, data } = await axios.post(REQUEST_URL,  {
+    head: 'refs/heads/main',
+    inputs: {
+      cron_schedule: '0 0 19 * * *'
+    }
+  }, { headers });
   
-  const { status, data } = await axios.post(REQUEST_URL, data, {
-    headers,
-  });
-  
-  res.json({
-    status,
-    data,
-  });
+  res.json({ status, data });
 };
