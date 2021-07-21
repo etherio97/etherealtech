@@ -1,4 +1,4 @@
-const { APP_SECRET } = process.env;
+const { APP_SECRET, GITHUB_TOKEN } = process.env;
 const { default: axios } = require('axios');
 
 const REQUEST_URL = '';
