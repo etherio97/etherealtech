@@ -45,20 +45,13 @@ class Actions {
 }
 
 module.exports = async (req, res) => {
-  let cron_schedule;
   let { token, hr, min } = req.query;
   if (!token) return res.status(401).json({ status: 401, error: 'Unauthorized' });
   if (token !== APP_SECRET) return res.status(403).json({ status: 403, error: 'Forbidden' });
   try {
     let [ run ] = await Actions.runs();
     let { id, status, conclusion, html_url, created_at, updated_at } = run;
-
-    if (hr) {
-      cron_schedule = `0 * ${min || 0} ${hr} * * *`;
-    } else {
-      cron_schedule = '0 0 19 * * *'; // [default] at every 7PM
-    }
-    
+    let cron_schedule = hr ? `0 ${min || 0} ${hr} * * *` : '0 0 19 * * *';
     switch(status) {
       case 'queued':
       case 'in_progress':
@@ -68,9 +61,7 @@ module.exports = async (req, res) => {
       default:
         console.log('[Unexcepted Run Status] %s', status);
     }
-    
     await Actions.dispatch(GITHUB_WORKFLOW_ID, { cron_schedule });
-    
     res.json({ status: 200, message: Actions.BASE_URL });
   } catch(e) {
     console.error('[ERR]', e);
