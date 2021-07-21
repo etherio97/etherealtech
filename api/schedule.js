@@ -1,7 +1,7 @@
 const { APP_SECRET, GITHUB_TOKEN } = process.env;
 const { default: axios } = require('axios');
 
-const REQUEST_URL = '';
+const REQUEST_URL = 'https://api.github.com/repos/etherealtech/aungsan-live-schedule/actions/workflows/11461024/dispatches';
 
 module.exports = async (req, res) => {
   const { token } = req.query;
